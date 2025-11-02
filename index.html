@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光守卫-SEE 光伏智能运维平台</title>
+    <!-- 引入ECharts用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 基础样式：蓝白极简风 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+        }
+        :root {
+            --primary-blue: #1E40AF; /* 深海蓝（主色） */
+            --light-blue: #93C5FD;   /* 浅蓝（辅助色） */
+            --pure-white: #FFFFFF;   /* 纯白（背景色） */
+            --gray-light: #F3F4F6;  /* 浅灰（分隔色） */
+            --text-dark: #1F2937;    /* 文字深色 */
+        }
+        body {
+            background-color: var(--pure-white);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        /* 导航栏样式 */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--pure-white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 100;
+            padding: 16px 0;
+        }
+        .nav-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        .nav-menu a:hover {
+            color: var(--primary-blue);
+        }
+        /* 内容容器样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 88px; /* 避开导航栏 */
+        }
+        /* Banner区域样式 */
+        .banner {
+            background: linear-gradient(120deg, var(--primary-blue), var(--light-blue));
+            color: var(--pure-white);
+            padding: 80px 0;
+            margin-bottom: 64px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .banner h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+        .banner p {
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        /* 核心优势卡片样式 */
+        .advantages {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+        .advantage-card {
+            background-color: var(--gray-light);
+            padding: 32px;
+            border-radius: 8px;
+            text-align: center;
+            transition: box-shadow 0.3s;
+        }
+        .advantage-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .advantage-card h3 {
+            color: var(--primary-blue);
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        .advantage-card p {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+        /* 数据可视化区域样式 */
+        .data-visual {
+            margin-bottom: 64px;
+        }
+        .section-title {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 32px;
+            border-left: 4px solid var(--primary-blue);
+            padding-left: 16px;
+        }
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .chart-card {
+            background-color: var(--gray-light);
+            padding: 24px;
+            border-radius: 8px;
+            height: 400px;
+        }
+        /* 软件平台板块样式 */
+        .software-platform {
+            margin-bottom: 64px;
+        }
+        .platform-arch {
+            background-color: var(--gray-light);
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+        .arch-title {
+            font-size: 18px;
+            color: var(--primary-blue);
+            margin-bottom: 16px;
+        }
+        .arch-steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .arch-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 16px;
+            background-color: var(--pure-white);
+            border-radius: 4px;
+        }
+        .arch-step h4 {
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .arch-step p {
+            font-size: 14px;
+        }
+        /* 试点案例样式 */
+        .cases {
+            margin-bottom: 64px;
+        }
+        .cases-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .case-card {
+            background-color: var(--gray-light);
+            padding: 24px;
+            border-radius: 8px;
+        }
+        .case-card h3 {
+            color: var(--primary-blue);
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        .case-data {
+            font-size: 14px;
+            line-height: 2;
+        }
+        /* 合作咨询样式 */
+        .contact {
+            background-color: var(--gray-light);
+            padding: 48px;
+            border-radius: 8px;
+            margin-bottom: 48px;
+        }
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .submit-btn {
+            background-color: var(--primary-blue);
+            color: var(--pure-white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #1E3A8A;
+        }
+        /* 底部样式 */
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            font-size: 14px;
+            color: #6B7280;
+            border-top: 1px solid var(--gray-light);
+        }
+        /* 响应式适配：手机端 */
+        @media (max-width: 768px) {
+            .advantages, .charts-container, .cases-container {
+                grid-template-columns: 1fr;
+            }
+            .nav-menu {
+                gap: 16px;
+            }
+            .banner h1 {
+                font-size: 28px;
+            }
+            .chart-card {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="logo">光守卫-SEE</div>
+            <div class="nav-menu">
+                <a href="#home">首页</a>
+                <a href="#software">软件平台</a>
+                <a href="#data">数据可视化</a>
+                <a href="#cases">试点案例</a>
+                <a href="#contact">合作咨询</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="container">
+        <!-- Banner区域 -->
+        <section id="home" class="banner">
+            <h1>光伏电站清洁—消防—安保一体化智能运维</h1>
+            <p>基于灰度视觉技术，为北京中小型光伏电站提供低成本、高适配的运维解决方案，降本增效，守护安全</p>
+        </section>
+
+        <!-- 核心优势 -->
+        <section class="advantages">
+            <div class="advantage-card">
+                <h3>低成本</h3>
+                <p>硬件成本仅为高端方案40%，运维综合成本比传统人工低60%，适配北京农村/工商业用户成本敏感需求</p>
+            </div>
+            <div class="advantage-card">
+                <h3>一体化</h3>
+                <p>整合清洁决策、消防预警、安保巡检三大功能，打破数据孤岛，无需多系统独立部署</p>
+            </div>
+            <div class="advantage-card">
+                <h3>高适配</h3>
+                <p>针对北京沙尘、雾霾天气优化算法，污染识别准确率85%+，冬季低温环境设备故障率降至3%</p>
+            </div>
+        </section>
+
+        <!-- 软件平台 -->
+        <section id="software" class="software-platform">
+            <h2 class="section-title">软件平台：光伏健康安全监测云系统</h2>
+            <div class="platform-arch">
+                <h3 class="arch-title">三层架构（适配北京场景）</h3>
+                <div class="arch-steps">
+                    <div class="arch-step">
+                        <h4>边缘端</h4>
+                        <p>优化图像预处理算法，实时监测摄像头防沙镜头状态，数据压缩率提升40%（适配昌平、房山郊区）</p>
+                    </div>
+                    <div class="arch-step">
+                        <h4>云端</h4>
+                        <p>部署阿里云北京节点（2核4G），响应延迟＜0.3秒，符合北京电力公司数据对接时效要求</p>
+                    </div>
+                    <div class="arch-step">
+                        <h4>小程序</h4>
+                        <p>字体放大至16号，适配北京农村55岁以上用户，操作步骤简化至3步内，支持清洁建议、收益预估查看</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="platform-arch">
+                <h3 class="arch-title">核心模块（本地化强化）</h3>
+                <div class="arch-steps">
+                    <div class="arch-step">
+                        <h4>感知层</h4>
+                        <p>每日12-14时（北京光照最稳定时段）截取标准化图像，同步接入北京气象局沙尘/雾霾预警数据</p>
+                    </div>
+                    <div class="arch-step">
+                        <h4>算法引擎</h4>
+                        <p>雾霾天灰度阈值从20调至18，沙尘天后24小时判定阈值升至35，消防预警3分钟内上传北京消防服务站</p>
+                    </div>
+                    <div class="arch-step">
+                        <h4>决策调度</h4>
+                        <p>结合北京节水政策，降雨后48小时延迟清洁；优先指派房山、大兴本地运维员，响应时间缩至8小时</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据可视化 -->
+        <section id="data" class="data-visual">
+            <h2 class="section-title">数据可视化：北京试点成效</h2>
+            <div class="charts-container">
+                <!-- 发电效率对比图 -->
+                <div class="chart-card" id="efficiency-chart">
+                    <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--primary-blue);">北京房山村级电站发电效率对比（1MW）</h3>
+                </div>
+                <!-- 运维成本对比图 -->
+                <div class="chart-card" id="cost-chart">
+                    <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--primary-blue);">1MW电站运维成本对比（传统vs光守卫）</h3>
+                </div>
+                <!-- 节水成效图 -->
+                <div class="chart-card" id="water-chart">
+                    <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--primary-blue);">北京村级电站年节水成效（1MW）</h3>
+                </div>
+                <!-- 污染识别准确率图 -->
+                <div class="chart-card" id="accuracy-chart">
+                    <h3 style="margin-bottom: 16px; font-size: 16px; color: var(--primary-blue);">不同天气污染识别准确率（北京地区）</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- 试点案例 -->
+        <section id="cases" class="cases">
+            <h2 class="section-title">北京试点案例</h2>
+            <div class="cases-container">
+                <div class="case-card">
+                    <h3>房山周口店镇村级试点（1MW/50户）</h3>
+                    <div class="case-data">
+                        <p>• 清洁前日均发电量：800度/MW</p>
+                        <p>• 清洁后日均发电量：1024度/MW（提升28%）</p>
+                        <p>• 年运维成本：从3.2万元降至0.9万元（降60%）</p>
+                        <p>• 年节水：5.6吨（节水率93.3%，契合北京节水政策）</p>
+                        <p>• 5名本地村民兼职运维，人均月增收1800元</p>
+                    </div>
+                </div>
+                <div class="case-card">
+                    <h3>北京某食品厂房试点（0.5MW）</h3>
+                    <div class="case-data">
+                        <p>• 清洁前日均发电量：750度/MW</p>
+                        <p>• 清洁后日均发电量：990度/MW（提升32%）</p>
+                        <p>• 年清洁成本：从1.2万元降至0.5万元（降58%）</p>
+                        <p>• 故障定位时间：从3天缩至0.5小时</p>
+                        <p>• 1月较11月多发电8190度，省电费6552元</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 合作咨询 -->
+        <section id="contact" class="contact">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 32px;">合作咨询</h2>
+            <div class="contact-form">
+                <div class="form-group">
+                    <label for="station-type">电站类型</label>
+                    <select id="station-type" required>
+                        <option value="">请选择</option>
+                        <option value="rural">农村户用光伏</option>
+                        <option value="industrial">工商业屋顶光伏</option>
+                        <option value="other">其他类型</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="capacity">装机容量（MW）</label>
+                    <input type="number" id="capacity" step="0.1" required placeholder="例如：1.0">
+                </div>
+                <div class="form-group">
+                    <label for="phone">联系方式</label>
+                    <input type="tel" id="phone" required placeholder="请输入手机号">
+                </div>
+                <div class="form-group">
+                    <label for="demand">需求类型</label>
+                    <select id="demand" required>
+                        <option value="">请选择</option>
+                        <option value="trial">免费试用（3个月）</option>
+                        <option value="visit">试点参观（房山项目）</option>
+                        <option value="cooperation">商务合作</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">提交申请</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <p>光守卫-SEE © 2026 光伏智能运维平台 | 政策支持：《北京市可再生能源开发利用条例》</p>
+    </footer>
+
+    <!-- 数据可视化脚本 -->
+    <script>
+        // 1. 发电效率对比图（房山村级电站）
+        const efficiencyChart = echarts.init(document.getElementById('efficiency-chart'));
+        efficiencyChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['清洁前', '清洁后（12月）', '清洁后（1月）'], top: 0 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: ['11月', '12月', '1月'],
+                axisLabel: { font-size: 12 }
+            },
+            yAxis: {
+                type: 'value',
+                name: '日均发电量（度/MW）',
+                nameTextStyle: { font-size: 12 },
+                axisLabel: { font-size: 12 }
+            },
+            series: [
+                {
+                    name: '清洁前',
+                    type: 'bar',
+                    data: [800, 0, 0],
+                    itemStyle: { color: '#9CA3AF' }
+                },
+                {
+                    name: '清洁后（12月）',
+                    type: 'bar',
+                    data: [0, 950, 0],
+                    itemStyle: { color: '#93C5FD' }
+                },
+                {
+                    name: '清洁后（1月）',
+                    type: 'bar',
+                    data: [0, 0, 1024],
+                    itemStyle: { color: '#1E40AF' }
+                }
+            ]
+        });
+
+        // 2. 运维成本对比图
+        const costChart = echarts.init(document.getElementById('cost-chart'));
+        costChart.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { data: ['人工成本', '设备成本', '其他成本'], top: 0 },
+            series: [
+                {
+                    name: '传统运维（年成本3.2万元）',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['25%', '50%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 4 },
+                    data: [
+                        { value: 22400, name: '人工成本（70%）' },
+                        { value: 6400, name: '设备成本（20%）' },
+                        { value: 3200, name: '其他成本（10%）' }
+                    ]
+                },
+                {
+                    name: '光守卫运维（年成本0.9万元）',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['75%', '50%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 4 },
+                    data: [
+                        { value: 3600, name: '人工成本（40%）' },
+                        { value: 4500, name: '设备成本（50%）' },
+                        { value: 900, name: '其他成本（10%）' }
+                    ]
+                }
+            ]
+        });
+
+        // 3. 节水成效图
+        const waterChart = echarts.init(document.getElementById('water-chart'));
+        waterChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['传统人工冲洗', '光守卫微水清洁'], top: 0 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: ['单次耗水量（吨/MW）', '年清洁次数', '年总耗水量（吨/MW）'],
+                axisLabel: { font-size: 12 }
+            },
+            yAxis: { type: 'value', axisLabel: { font-size: 12 } },
+            series: [
+                {
+                    name: '传统人工冲洗',
+                    type: 'bar',
+                    data: [0.5, 12, 6],
+                    itemStyle: { color: '#9CA3AF' }
+                },
+                {
+                    name: '光守卫微水清洁',
+                    type: 'bar',
+                    data: [0.05, 8, 0.4],
+                    itemStyle: { color: '#1E40AF' }
+                }
+            ]
+        });
+
+        // 4. 污染识别准确率图
+        const accuracyChart = echarts.init(document.getElementById('accuracy-chart'));
+        accuracyChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['光守卫优化算法', '普通算法'], top: 0 },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: {
+                type: 'category',
+                data: ['晴天（80000lux）', '中度雾霾（25000lux）'],
+                axisLabel: { font-size: 12 }
+            },
+            yAxis: {
+                type: 'value',
+                name: '识别准确率（%）',
+                nameTextStyle: { font-size: 12 },
+                axisLabel: { font-size: 12 },
+                max: 100
+            },
+            series: [
+                {
+                    name: '光守卫优化算法',
+                    type: 'line',
+                    data: [92.3, 85.7],
+                    itemStyle: { color: '#1E40AF' },
+                    lineStyle: { width: 2 }
+                },
+                {
+                    name: '普通算法',
+                    type: 'line',
+                    data: [90.1, 68.2],
+                    itemStyle: { color: '#9CA3AF' },
+                    lineStyle: { width: 2, type: 'dashed' }
+                }
+            ]
+        });
+
+        // 窗口大小变化时重置图表
+        window.addEventListener('resize', () => {
+            efficiencyChart.resize();
+            costChart.resize();
+            waterChart.resize();
+            accuracyChart.resize();
+        });
+    </script>
+</body>
+</html>
